@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#191a1f">
+<title>TGC League — Discord Simulator</title>
+<style>
+:root{--bg:#191a1f;--side:#1e1f24;--dark:#0d0e10;--hover:#2b2d31;--active:#34363d;--line:#303238;--text:#f2f3f5;--muted:#949ba4;--blue:#5865f2}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input{font:inherit}button{cursor:pointer}.app{height:100dvh;display:grid;grid-template-columns:72px 280px 1fr;overflow:hidden}
+.servers{background:var(--dark);padding:12px 10px;overflow:auto}.server{width:52px;height:52px;margin:0 auto 10px;border-radius:17px;background:#292b31;display:grid;place-items:center;font-size:11px;font-weight:800;text-align:center;cursor:pointer;transition:.15s}.server:hover,.server.active{background:var(--blue);border-radius:15px}.server.emoji{font-size:22px}
+.channels{background:var(--side);overflow:auto;border-right:1px solid #15161a}.serverHead{padding:17px 15px;border-bottom:1px solid #15161a;font-weight:800;cursor:pointer}.serverHead small{display:block;color:var(--muted);font-weight:500;margin-top:5px}.cat{padding:17px 12px 5px;color:var(--muted);font-size:12px;font-weight:800;text-transform:uppercase}.channel{margin:2px 8px;padding:9px 10px;border-radius:6px;color:#a9adb5;cursor:pointer;white-space:nowrap}.channel:hover{background:var(--hover);color:#fff}.channel.active{background:var(--active);color:#fff}
+.main{min-width:0;display:flex;flex-direction:column;background:var(--bg)}.top{height:64px;display:flex;align-items:center;gap:12px;padding:0 18px;border-bottom:1px solid var(--line);flex:none}.channelName{font-weight:800}.topic{color:var(--muted);font-size:13px;margin-left:auto}.search{width:180px;background:#111216;border:0;border-radius:6px;color:#ddd;padding:8px 10px;outline:0}.messages{flex:1;overflow:auto;padding:20px 24px}.empty{color:var(--muted);text-align:center;margin-top:20vh}.msg{display:flex;gap:12px;padding:7px 8px;margin:4px 0;border-radius:6px;position:relative}.msg:hover{background:#1d1e23}.avatar{width:40px;height:40px;flex:none;border-radius:50%;display:grid;place-items:center;background:var(--blue);font-size:11px;font-weight:800}.name{font-weight:800}.time{color:#72767d;font-size:11px;margin-left:8px}.text{margin-top:3px;line-height:1.45;white-space:pre-wrap;word-break:break-word}.reaction{display:inline-block;margin-top:6px;background:#2b2d31;border:1px solid #454850;border-radius:7px;padding:3px 7px;font-size:12px}.tools{position:absolute;right:8px;top:-15px;display:none;background:#303238;border:1px solid #454850;border-radius:7px;padding:3px}.msg:hover .tools{display:flex}.tools button{background:none;border:0;color:#ddd;padding:5px}.composer{padding:12px 18px 18px}.compose{display:flex;align-items:center;background:#383a40;border-radius:9px;padding:0 8px}.compose input{flex:1;min-width:0;background:transparent;border:0;outline:0;color:#fff;padding:13px 8px}.send{background:var(--blue);color:white;border:0;border-radius:7px;padding:8px 13px}.modal{position:fixed;inset:0;background:#0009;display:none;place-items:center;z-index:10}.box{width:min(440px,92vw);background:#24262b;border-radius:12px;padding:18px;box-shadow:0 20px 60px #000}.box h3{margin:0 0 12px}.box input,.box textarea{width:100%;background:#18191c;border:1px solid #454850;color:#fff;border-radius:7px;padding:10px;margin:5px 0 12px;outline:0}.actions{display:flex;justify-content:flex-end;gap:8px}.actions button{border:0;border-radius:7px;padding:9px 13px}.cancel{background:#3a3d44;color:#fff}.ok{background:var(--blue);color:#fff}.toast{position:fixed;left:50%;bottom:90px;transform:translate(-50%,20px);background:#111;color:#fff;border:1px solid #444;padding:10px 14px;border-radius:8px;opacity:0;transition:.2s;z-index:20}.toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:700px){.app{display:block}.servers,.channels{display:none}.main{height:100dvh}.top{height:78px;padding:18px 16px 7px}.top:before{content:"‹";font-size:38px;line-height:20px;cursor:pointer}.topic{position:absolute;left:52px;top:56px;font-size:11px}.search{width:34px;background:transparent;padding:0;font-size:0}.search:after{content:"⌕";font-size:27px}.messages{padding:12px 14px 92px}.msg{padding:8px 4px}.avatar{width:44px;height:44px}.text{font-size:16px}.composer{position:fixed;left:0;right:0;bottom:0;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:#191a1f}.compose{border-radius:17px;height:54px}.send{padding:7px 10px}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="servers">
+  <div class="server active">TGC<br>LEAGUE</div>
+  <div class="server emoji">🏀</div><div class="server emoji">🎮</div><div class="server emoji">🏆</div><div class="server emoji">🔥</div>
+</aside>
+<aside class="channels" id="channels">
+  <div class="serverHead" onclick="serverMenu()">TGC LEAGUE 2K25<small>23 Members • Community</small></div>
+  <div id="channelList"></div>
+</aside>
+<main class="main">
+  <header class="top" id="top">
+    <span class="channelName" id="title"># 💬 league-chat</span>
+    <span class="topic">🟢 Online • TGC League</span>
+    <input class="search" id="search" placeholder="Search">
+  </header>
+  <section class="messages" id="messages"></section>
+  <div class="composer"><div class="compose"><input id="input" placeholder="Message # league-chat"><button class="send" onclick="send()">Send</button></div></div>
+</main>
+</div>
+
+<div class="modal" id="modal"><div class="box"><h3 id="modalTitle"></h3><div id="modalBody"></div><div class="actions"><button class="cancel" onclick="closeModal()">Cancel</button><button class="ok" id="modalOK">Done</button></div></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const groups={
+"GET STARTED":["💬 league-chat","👋 welcome","✅ available-teams","✉️ invite-request","📣 announcements"],
+"RULES AND LOGISTICS":["📝 league-rules","❌ user-strikes","🚓 suspensions"],
+"GAME DAY":["💬 league-chat","🔴 live-streams","🎙️ hangouts"],
+"LEAGUE OFFICE":["🔒 commish-and-vp","board-room","🔄 reset-game","👟 release-player-request","🖊️ fa-signing-request","📋 position-change-request","🏀 jumpshot-change-request","🔨 trade-voting-chat"],
+"MEDIA":["🐦 tgc-twitter","🥇 power-rankings","🏆 award-watch"],
+"TRADES":["📌 trade-block","✉️ trade-proposal"],
+"UPGRADES":["🍄 how-upgrades-work","🔍 upgrade-claims","✅ upgrade-approval","👥 player-review"],
+"GAMEDAY":["mavs-heat","hawks-pels","pacers-76ers","lakers-magic","wizards-cavs","bucks-pelicans","kings-nuggets","celtics-bucks","spurs-timberwolves","bulls-pistons","jazz-hornets","kings-bulls","rockets-hawks","heat-bucks"]
+};
+const initial={
+"league-chat":[
+["Knicks 🗽 - Buckeye","KB","How about those OHIO STATE FREAKING BUCKEYES!","8/31/25, 8:55 AM",""],
+["Sosa","SO","https://discord.gg/vctk8Ewms @here","1/24/26, 5:14 PM",""],
+["Cashout TGC","CT","Welcome to TGC LEAGUE 2K25! 👋","Today","🔥 6"],
+["Buckeye252","B2","Ready for another great season 🤝","Today","💪 3"],
+["Rafi TGC","RT","Let’s get these dubs. 🏀","Today","🏀 4"],
+["Commish 👑","C","Make sure to submit your lineup before tip off tonight!","Today","✅ 2"]
+],
+"welcome":[["TGC League Bot","BOT","Welcome to the official TGC LEAGUE 2K25 server! Read the rules and grab a team.","Today",""]],
+"announcements":[["Commish 👑","C","🏆 Season announcement: Game Day channels are now live!","Today",""]],
+"available-teams":[["Commish 👑","C","Available teams have been posted. First come, first served.","Today",""]],
+"trade-block":[["Cashout TGC","CT","Looking to move a young wing for a starting-caliber big. DM offers.","Today",""]],
+"trade-proposal":[["TGC League Bot","BOT","Post the full trade here and league members can vote.","Today",""]],
+"power-rankings":[["TGC Media","TM","Power rankings will drop after tonight’s games. 👀","Today",""]],
+"league-rules":[["Commish 👑","C","1. Respect members. 2. No collusion. 3. Submit lineups on time. 4. Follow league office rulings.","Today",""]]
+};
+let data=JSON.parse(localStorage.getItem("tgcSiteChats")||"null")||initial;
+let current="league-chat";
+
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
+function save(){localStorage.setItem("tgcSiteChats",JSON.stringify(data))}
+function toast(t){const x=document.getElementById("toast");x.textContent=t;x.classList.add("show");clearTimeout(window.tt);window.tt=setTimeout(()=>x.classList.remove("show"),1600)}
+function channelId(s){return s.replace(/^[^\w]+/,"").replace(/\s+/g,"-").toLowerCase()}
+function buildChannels(){
+ const box=document.getElementById("channelList");box.innerHTML="";
+ Object.entries(groups).forEach(([cat,list])=>{
+   const h=document.createElement("div");h.className="cat";h.textContent=cat;box.appendChild(h);
+   list.forEach(label=>{
+     const c=document.createElement("div");c.className="channel";
+     const id=channelId(label);c.dataset.channel=id;c.textContent="# "+label;
+     c.onclick=()=>openChannel(id,label);box.appendChild(c);
+     if(!data[id])data[id]=[];
+   });
+ });save();
+}
+function openChannel(id,label){
+ current=id;document.querySelectorAll(".channel").forEach(c=>c.classList.toggle("active",c.dataset.channel===id));
+ document.getElementById("title").textContent="# "+label;
+ document.getElementById("input").placeholder="Message # "+id;
+ render();
+ if(innerWidth<=700){document.querySelector(".channels").style.display="none";document.querySelector(".servers").style.display="none"}
+}
+function render(){
+ const arr=data[current]||[];const m=document.getElementById("messages");
+ if(!arr.length){m.innerHTML='<div class="empty"><b>This is the beginning of #'+esc(current)+'</b><br><br>Start the conversation.</div>';return}
+ m.innerHTML=arr.map((x,i)=>`<div class="msg"><div class="avatar">${esc(x[1])}</div><div><div><span class="name">${esc(x[0])}</span><span class="time">${esc(x[3])}</span></div><div class="text">${esc(x[2])}</div>${x[4]?`<div class="reaction">${esc(x[4])}</div>`:""}</div><div class="tools"><button onclick="react(${i})">😀</button><button onclick="edit(${i})">✏️</button><button onclick="removeMsg(${i})">🗑️</button></div></div>`).join("");
+ m.scrollTop=m.scrollHeight;
+}
+function send(){
+ const inp=document.getElementById("input"),v=inp.value.trim();if(!v)return;
+ if(!data[current])data[current]=[];data[current].push(["Cashout TGC","CT",v,"Now",""]);save();inp.value="";render();toast("Message sent");
+}
+document.getElementById("input").addEventListener("keydown",e=>{if(e.key==="Enter")send()});
+function react(i){data[current][i][4]=(data[current][i][4]?data[current][i][4]+" ":"")+"❤️ 1";save();render()}
+function edit(i){const v=prompt("Edit message:",data[current][i][2]);if(v!==null&&v.trim()){data[current][i][2]=v.trim();save();render();toast("Edited")}}
+function removeMsg(i){if(confirm("Delete this message?")){data[current].splice(i,1);save();render();toast("Deleted")}}
+function serverMenu(){
+ showModal("TGC LEAGUE 2K25",`<button class="cancel" style="width:100%;margin:5px 0" onclick="toast('Invite link copied');closeModal()">Invite People</button><button class="cancel" style="width:100%;margin:5px 0" onclick="toast('Notifications enabled');closeModal()">Notification Settings</button>`);
+}
+function showModal(title,body){
+ document.getElementById("modalTitle").textContent=title;document.getElementById("modalBody").innerHTML=body;
+ document.getElementById("modal").style.display="grid";document.getElementById("modalOK").onclick=closeModal;
+}
+function closeModal(){document.getElementById("modal").style.display="none"}
+document.getElementById("search").addEventListener("keydown",e=>{
+ if(e.key!=="Enter")return;const q=e.target.value.trim().toLowerCase();if(!q)return;
+ const hits=[];Object.entries(data).forEach(([ch,arr])=>arr.forEach(x=>{if(x[2].toLowerCase().includes(q))hits.push("#"+ch+" — "+x[0]+": "+x[2])}));
+ alert(hits.length?hits.join("\\n\\n"):"No messages found.");
+});
+document.getElementById("top").addEventListener("click",e=>{
+ if(innerWidth<=700&&e.clientX<55){document.querySelector(".channels").style.display="block";document.querySelector(".servers").style.display="block"}
+});
+buildChannels();openChannel("league-chat","💬 league-chat");
+</script>
+</body>
+</html>
